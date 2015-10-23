@@ -1,0 +1,28 @@
+<?php include HEADER_HTML ?>
+  <div class="container"> 
+    <div class="row">
+      <?php include LEFT_HTML ?>
+
+      <div class="span9">
+        <section id="typography"> 
+          <div class="page-header">
+            <h1>二维码</h1> 
+          </div> 
+ 
+          <div class="bs-docs-example"> 
+      			<form id="profileForm" name="profileForm" method="get">
+              <input type="text" size="100" id="value" name="value" />  
+
+              <br />
+      				<input type="submit" id="submit" class="btn btn-primary" name="submit" value="Submit" />
+              <a href="/user/profile" class="btn">Back</a>
+      			</form>
+            <?php if($qrCode){ ?>
+              <img src="<?php echo $qrCode?>" />
+            <?php } ?>
+          </div> 
+        </section>
+      </div> 
+    </div>
+  </div> 
+</body>

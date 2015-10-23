@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <?php include HEADER_HTML ?>
+</head>
+<body>
+<!--top start-->
+<?php include TOP_HTML ?>
+<!--top end-->
+<div id="main" style="margin-top: 40px;">
+	<div class="container">
+		<form class="form-horizontal" method="post" action="/login/handleReg" role="form" style="width:100%; margin:0px auto;" id="registerForm">
+				<div class="tip">
+				</div>
+				<div class="form-group">
+					<label for="email" class="col-sm-2 control-label" style="text-align:center;">
+						邮箱
+					</label>
+					<div class="col-sm-6">
+						<input type="text" class="form-control" id="email" name="email"
+						placeholder="请输入邮箱">
+					</div>
+				</div>
+				<div class="form-group">
+					<label for="username" class="col-sm-2 control-label" style="text-align:center;">
+						昵称
+					</label>
+					<div class="col-sm-6">
+						<input type="text" class="form-control" id="username" name="username"
+						placeholder="请输入昵称，至少2个字符">
+					</div>
+				</div>
+				<div class="form-group">
+					<label for="password" class="col-sm-2 control-label" style="text-align:center;">
+						密码
+					</label>
+					<div class="col-sm-6">
+						<input type="password" class="form-control" name="password" id="password"
+						placeholder="请输入6位以上密码">
+					</div>
+				</div>
+				<div class="form-group">
+					<label for="repassword" class="col-sm-2 control-label" style="text-align:center;">
+						确认密码
+					</label>
+					<div class="col-sm-6">
+						<input type="password" class="form-control" name="repassword" id="repassword"
+						placeholder="请输入确认密码">
+					</div>
+				</div>
+				<div class="form-group">
+					<label for="checkcode" class="col-sm-2 control-label" style="text-align:center;">
+						验证码
+					</label>
+					<div class="col-sm-3">
+						<input type="text" class="form-control" name="checkcode" id="checkcode"
+						placeholder="请输入验证码" style="margin-bottom:12px;">
+						 <img class="code" id="verifyImg" src="/verify.php" onclick="this.src+='?'+Math.random()" alt="点击刷新验证码" title="点击刷新验证码" />
+					</div>
+				</div>
+				<div class="form-group" style="margin-bottom:30px;">
+					<div class="col-sm-offset-2 col-sm-6">
+						<input type="submit" id="subBtn" class="btn btn-info" style="width:220px;background:#0098E6;" value="立即注册">
+					</div>
+				</div>
+				<div class="form-group">
+					<div class="col-sm-offset-2 col-sm-6">
+						<span>快速登录</span>
+					</div>
+				</div>
+				<div class="form-group">
+					<div class="col-sm-offset-2 col-sm-6">
+						<a href="/login/threeLogin?type=weibo" class="btn btn-sm" style="width:100px;background:#E90D24;color:#fff;text-shadow:none;margin-right:10px;"><span style="display: inline-block;background:transparent url(/img/icon-sn.png) -40px -2px; background-repeat: no-repeat; width: 20px; height: 20px; vertical-align: middle; -moz-border-radius: 2px; -webkit-border-radius: 2px; border-radius: 2px; -moz-background-size: auto 20px; -o-background-size: auto 20px; -webkit-background-size: auto 20px; background-size: auto 20px;"></span>微博</a>
+						<a href="/login/threeLogin?type=qq" class="btn btn-sm" style="width:100px;background:#0098E6;color:#fff;text-shadow:none;"><span style="display: inline-block;background:transparent url(/img/icon-sn.png) -60px -2px; background-repeat: no-repeat; width: 20px; height: 20px; vertical-align: middle; -moz-border-radius: 2px; -webkit-border-radius: 2px; border-radius: 2px; -moz-background-size: auto 20px; -o-background-size: auto 20px; -webkit-background-size: auto 20px; background-size: auto 20px;"></span>QQ</a>
+					</div>
+				</div>
+		</form>	
+	</div>
+</div>
+<!--footer start-->
+<?php include FOOTER_HTML ?>
+<script src="<?php echo JS_PATH ?>/jquery.form.js"></script>
+<script src="<?php echo JS_PATH ?>/jNotify/jNotify.jquery.js"></script>
+<link rel="stylesheet" href="<?php echo JS_PATH ?>/jNotify/jNotify.jquery.css" />
+<!--footer end-->
+<script type="text/javascript">
+	$(function(){
+		var options = {
+			beforeSubmit:showRequest,//提交前处理函数
+			success:showResponse,
+			dataType:"json"
+		};		
+		$("#registerForm").submit(function(){
+			$(this).ajaxSubmit(options);
+			return false;
+		});
+	});
+	function showRequest(formData,jqForm,options){
+		var email = $('input[name=email]').val();
+		var username = $('input[name=username]').val();
+		var password = $('input[name=password]').val();
+		var repassword = $('input[name=repassword]').val();
+		var checkcode = $('input[name=checkcode]').val();
+		if(email == ''){
+			showMsg("邮箱不能为空");
+			return false;
+		}
+		if(!/^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*/g.test(email)){
+			showMsg("邮箱格式不对");
+			return false;
+		}
+		if( !/^[\S]{2,14}$/g.test(username)){
+			showMsg("昵称必须是2-14个字符");
+			return false;
+		}
+		if(!/^\w{6,20}$/g.test(password)){
+			showMsg("密码必须是6-20个字符");
+			return false;
+		}
+		if(password != repassword){
+			showMsg("前后密码不一致");
+			return false;
+		}
+		if(checkcode == ''){
+			showMsg("验证码不能为空");
+			return false;
+		}
+		$("#subBtn").val("正在提交").prop("disabled","disabled");
+		return true;
+			
+	}
+	function showSuccessMsg(msg){
+		jSuccess(msg,{
+			VerticalPosition : 'center',
+			HorizontalPosition : 'center'
+		});
+	}
+	function showMsg(msg){
+		jError(msg,{
+			 VerticalPosition : 'center',
+                        HorizontalPosition : 'center'
+		});
+	}
+	function showResponse(responseText){
+		$("#subBtn").val("提交").removeProp("disabled");
+		if(responseText.status){
+			showSuccessMsg(responseText.msg);
+			setTimeout(function(){
+				window.location.href="/member";
+			},1000)
+		}else{
+			showMsg(responseText.msg);
+		}
+	}
+</script>
+</body>
+</html>

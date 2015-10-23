@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <?php include HEADER_HTML ?>
+</head>
+<body>
+<?php include TOP_HTML ?>
+<div id="main">
+    <div class="container" id="daily">
+        <div class="daily">
+            <div class="alert alert-warning subscribe-banner" role="alert">
+                <a href="/travel" class="sort <?php if(!intval($_GET['sid'])) echo 'curSort';?>">全部</a>
+                <?php foreach($linkSort as $k=>$v){ ?>
+                <a href="<?php echo $v['url'];?>" class="sort <?php if(intval($_GET['sid'])==substr($v['url'],-1)) echo 'curSort';?>"><?php echo $v['sort_name'];?></a>
+                <?php }?>
+            </div>
+            <h3 class="date" style="position:relative; z-index;2;">
+                <i class="fa fa-database"></i>
+                <span>泰旅游</span>
+                <a href="/travel/addarticle" style="color:#f05050; font-size:13px; font-weight:normal; position:absolute;right:10px;top:50%;">+ 发布文章</a>
+            </h3>
+            <div class="posts">
+                <?php foreach($list as $k=>$v){ ?>
+                <div class="post">
+                    <div class="btn-group-vertical upvote">
+                        <a class="btn btn-default like-button" title="登录后点赞" href="javascript:void(0)" data-id="<?php echo $v['id'];?>" data-diff="2"><i class="fa fa-thumbs-o-up"></i> <span><?php echo $v['zan_num'];?></span></a>
+                        <a class="btn btn-default favorite-button" title="登录后收藏" href="javascript:void(0)" data-id="<?php echo $v['id'];?>" data-diff="2"><i class="fa fa-bookmark-o"></i> <span><?php echo $v['collect_num'];?></span></a>
+                    </div>
+                    <div class="content" data-url="">
+                        <h3 class="title">
+                            <a target="_blank" href="/travel/detail?id=<?php echo $v['id'];?>"><?php echo $v['travel_name'];?></a>
+                        </h3>
+                        <p class="summary"><a href="/travel/detail?id=<?php echo $v['id'];?>" style="font-size: 13px;"><?php echo $v["brief"];?></a></p>
+                        <div class="meta">by <?php echo $v['username'];?>&nbsp;
+      <span>
+          <i class="fa fa-comment-o"></i> <?php echo $v['comment_num'];?>
+      </span>
+      <span>
+           <i class="fa fa-eye"></i> <?php echo $v['click_number'];?>
+      </span>
+                        </div>
+                    </div>
+                    <div class="user-info">
+                        <div class="user-avatar">
+                            <img width="32" class="img-circle" src="<?php echo $v['avatar'];?>" alt="Thumb" />
+                        </div>
+                    </div>
+                </div>
+                <?php } ?>
+            </div>
+            <nav class="text-center"><ul class="pagination"><?php echo $pageNav;?></ul> </nav>
+        </div>
+    </div>
+</div>
+<?php include FOOTER_HTML ?>
+<script src="<?php echo JS_PATH ?>/jNotify/jNotify.jquery.js"></script>
+<link rel="stylesheet" href="<?php echo JS_PATH ?>/jNotify/jNotify.jquery.css" />
+<script>
+    $(function(){
+        $(".like-button").on("click",function(){
+            var thisFunc = arguments.callee;
+            var  self = $(this);
+            self.off("click",thisFunc);//一次请求解绑事件监听函数
+            var artile_id = $(this).attr("data-id");
+            var diff = $(this).attr("data-diff");
+            var element_span = $(this).find("span");
+            var element_span_val = parseInt($(this).find("span").text());
+            $.ajax({
+                type:"POST",
+                url:"/public/handleZan/",
+                data:{"artileId":artile_id,"different":diff},
+                dataType:"json",
+                success:function(data){
+                   if(data.status){
+                        element_span.text(element_span_val+1);
+                       jSuccess(data.msg,{
+                           VerticalPosition : 'center',
+                           HorizontalPosition : 'center'
+                       });
+                   }else{
+                       jError(data.msg,{
+                           VerticalPosition : 'center',
+                           HorizontalPosition : 'center'
+                       });
+                   }
+                    self.on('click',thisFunc); //请求完成再次绑定事件监听函数
+                }
+            })
+        });
+        $(".favorite-button").on("click",function(){
+            var thisFunc = arguments.callee;
+            var  self = $(this);
+            self.off("click",thisFunc);//一次请求解绑事件监听函数
+            var artile_id = $(this).attr("data-id");
+            var diff = $(this).attr("data-diff");
+            var element_span = $(this).find("span");
+            var element_span_val = parseInt($(this).find("span").text());
+            $.ajax({
+                type:"POST",
+                url:"/public/handleCollect/",
+                data:{"artileId":artile_id,"different":diff},
+                dataType:"json",
+                success:function(data){
+                    if(data.status){
+                        element_span.text(element_span_val+1);
+                        jSuccess(data.msg,{
+                            VerticalPosition : 'center',
+                            HorizontalPosition : 'center'
+                        });
+                    }else{
+                        jError(data.msg,{
+                            VerticalPosition : 'center',
+                            HorizontalPosition : 'center'
+                        });
+                    }
+                    self.on('click',thisFunc); //请求完成再次绑定事件监听函数
+                }
+            })
+        });
+    })
+</script>
+</body>
+</html>

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <?php include HEADER_HTML ?>
+    <style>
+        .tab_title { width:100%; height:34px; margin-bottom:30px; }
+        .tab_title ul { width:100%; overflow:hidden;}
+        .tab_title ul li{ width:24%; float:left;margin-right:2px; }
+        .tab_title ul li a { width:100%;border:1px solid #eee; display:block;  padding:6px;color:#666;text-align:center; }
+        .tab_title ul li a:hover {color:#0098E6; }
+        .tab_title ul li a.current { color:#0098E6; }
+        .articleBox li { margin-bottom: 12px;background: url(/img/discuss_icon.gif) no-repeat left 10%; padding-left: 10px;}
+        .articleBox li a { color: #333;}
+        .articleBox li a:hover { color: #666;}
+        .articleBox li a.edit{ color: #666; padding-left: 30px;}
+        .articleBox li span{ padding-left: 30px; color: #999;}
+    </style>
+</head>
+<body>
+<?php include TOP_HTML ?>
+<div id="main">
+    <div class="container" id="daily" style="margin-top:30px;">
+        <h3 style="margin-bottom:30px;">我的评论</h3>
+        <div class="tab_title">
+            <ul>
+                <li><a href="/member/comment?type=1&p=<?php echo (int)$_GET['p'];?>"  class="<?php if($type==0 || $type == 1) echo 'current';?>">泰学习</a></li>
+                <li><a href="/member/comment?type=2&p=<?php echo (int)$_GET['p'];?>"  class="<?php if($type == 2) echo 'current';?>">泰旅游</a></li>
+                <li><a href="/member/comment?type=3&p=<?php echo (int)$_GET['p'];?>"  class="<?php if($type == 3) echo 'current';?>">泰话题</a></li>
+            </ul>
+        </div>
+        <ul class="articleBox">
+            <?php if(!empty($article_list)){?>
+            <?php foreach($article_list as $k=>$v){ ?>
+            <li>
+                <p style="padding-bottom: 8px;">在文章：<a href="<?php echo $v['url'];?>"><i style="color: #F16E50; font-style: normal;"><?php echo $v["title"];?></i></a>中评论到：</p>
+                <p style="padding-bottom: 4px;"><a href="<?php echo $v['url'];?>"><?php echo msubstr($v["content"],0,15);?></a><span></p>
+                <p style="color: #999;"><?php echo time_format($v["ctime"]);?></span></p>
+            </li>
+            <?php }?>
+            <?php }?>
+        </ul>
+        <nav class="text-center">
+            <?php if(!empty($article_list)){?>
+            <ul class="pagination">
+                <?php echo $pageNav;?>
+            </ul>
+            <?php }?>
+        </nav>
+    </div>
+</div>
+<?php include FOOTER_HTML ?>
+</body>
+</html>

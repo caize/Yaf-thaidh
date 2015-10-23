@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <?php include HEADER_HTML ?>
+</head>
+<body>
+<!--top start-->
+<?php include TOP_HTML ?>
+<!--top end-->
+<div id="main" style="margin-top: 40px;">
+    <div class="container">
+        <form class="form-horizontal" method="post" id="loginForm" action="/Login/handleForgetPwd" role="form" style="width:100%; margin:0px auto;">
+            <div class="tip">
+            </div>
+            <div class="form-group">
+                <label for="email" class="col-sm-2 control-label" style="text-align:center;">
+                    邮箱
+                </label>
+                <div class="col-sm-6">
+                    <input type="text" class="form-control" id="email" name="email" placeholder="请输入邮箱">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="checkcode" class="col-sm-2 control-label" style="text-align:center;">
+                    验证码
+                </label>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control" name="checkcode" id="checkcode" placeholder="请输入验证码" style="margin-bottom:12px;">
+                    <img class="code" id="verifyImg" src="/verify.php" onclick="this.src+='?'+Math.random()"
+                         alt="点击刷新验证码" title="点击刷新验证码" />
+                </div>
+            </div>
+            <div class="form-group" style="margin-bottom:30px;">
+                <div class="col-sm-offset-2 col-sm-6">
+                    <button type="submit" class="btn btn-info" id="subBtn" style="width:220px;background:#0098E6;">
+                        提交
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<!--footer start-->
+<?php include FOOTER_HTML ?>
+<script src="<?php echo JS_PATH ?>/jquery.form.js"></script>
+<script src="<?php echo JS_PATH ?>/jNotify/jNotify.jquery.js"></script>
+<link rel="stylesheet" href="<?php echo JS_PATH ?>/jNotify/jNotify.jquery.css" />
+<!--footer end-->
+<script type="text/javascript">
+    $(function(){
+        var options = {
+            beforeSubmit:showRequest,//提交前处理函数
+            success:showResponse,
+            dataType:"json"
+        };
+        $("#loginForm").submit(function(){
+            $(this).ajaxSubmit(options);
+            return false;
+        });
+    });
+    function showRequest(formData,jqForm,options){
+        var email = $('input[name=email]').val();
+        var checkcode = $('input[name=checkcode]').val();
+        if(email == ''){
+            showMsg("邮箱不能为空");
+            return false;
+        }
+        if(!/^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*/g.test(email)){
+            showMsg("邮箱格式不对");
+            return false;
+        }
+        if(checkcode == ''){
+            showMsg("验证码不能为空");
+            return false;
+        }
+        $("#subBtn").val("正在提交").prop("disabled","disabled");
+        return true;
+
+    }
+    function showSuccessMsg(msg){
+        jSuccess(msg,{
+            VerticalPosition : 'center',
+            HorizontalPosition : 'center'
+        });
+    }
+    function showMsg(msg){
+        jError(msg,{
+            VerticalPosition : 'center',
+            HorizontalPosition : 'center'
+        });
+    }
+    function showResponse(responseText){
+        $("#subBtn").val("提交").removeProp("disabled");
+        if(responseText.status){
+            showSuccessMsg(responseText.msg);
+            setTimeout(function(){
+                window.location.href="/login";
+            },1000)
+        }else{
+            showMsg(responseText.msg);
+        }
+    }
+</script>
+</body>
+</html>

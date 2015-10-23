@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title><?php echo $pageTitle;?></title>
+    <meta charset="UTF-8" />
+    <meta name="renderer" content="webkit|ie-comp|ie-stand">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimal-ui, maximum-scale=1, user-scalable=no"/>
+    <link href="<?php echo IMG_PATH;?>/fav.png" type="image/x-icon" rel="shortcut icon" />
+    <link rel="stylesheet" type="text/css" href="<?php echo CSS_PATH;?>/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="<?php echo CSS_PATH;?>/font-awesome.min.css">
+    <link rel="stylesheet" media="all" href="<?php echo CSS_PATH;?>/diy.css" />
+    <style>
+        @import url('<?php echo JS_PATH;?>/summernote/summernote.css');
+    </style>
+</head>
+<body>
+<?php include TOP_HTML ?>
+<div id="main">
+    <div class="container" style="margin-top: 22px;">
+        <form action="/discuss/handleEditArticle" id="articleForm" method="post">
+            <input type="hidden" name="id" value="<?php echo $article['id'];?>">
+            <input type="hidden" name="content" id="content"  value="" />
+            <div class="input-group" style="width: 100%;margin-bottom: 20px;">
+                <input type="text" name="title" id="title" value="<?php echo $article['discuss_name'];?>" class="form-control" placeholder="标题">
+            </div>
+            <div class="input-group" style="width: 100%;margin-bottom: 20px;">
+                <select name="category" id="category" class="form-control">
+                    <option value="">请选择分类</option>
+                    <?php foreach($sort_list as $v){?>
+                    <option value="<?php echo $v["id"];?>" <?php if($article["sort_id"] == $v["id"]){ echo 'selected="selected"';}?>><?php echo $v["sort_name"];?></option>
+                    <?php }?>
+                </select>
+            </div>
+            <div class="input-group" style="width: 100%;margin-bottom: 20px;">
+                <div id="summernote"><?php echo $article["content"];?></div>
+            </div>
+            <div class="input-group" style="width: 100%;margin-bottom: 20px; resize: none; overflow: hidden;">
+                <input type="button" name="commit" value="发 布" id="subBtn" class="btn btn-success" style="pointer-events: all; cursor: pointer;">
+            </div>
+        </form>
+    </div>
+</div>
+</div>
+<footer>
+    <div class="container">
+        <p class="text-center" style="padding-bottom: 12px;">
+            <a href="/" style="color:#0098E6;">泰语导航</a>&nbsp;
+            <a href="/discuss" style="color:#0098E6;">泰话题</a>&nbsp;
+            <a href="javascript:;" onclick="alert('请关注微信公众号：taiyudaohang 回复1即可');" style="color:#0098E6;">在线查单词</a></p>
+        <p class="text-center">&copy; 2015 泰语导航网 版权所有 蜀ICP备13006962号-1</p>
+    </div>
+    <div class="qrcode">
+        <img src="<?php echo IMG_PATH;?>/qrcode.png" alt="扫码关注官方微信" /><span>扫码关注官方微信</span>
+    </div>
+</footer>
+<script type="text/javascript" src="<?php echo JS_PATH;?>/jquery.min.js"></script>
+<script type="text/javascript" src="<?php echo JS_PATH;?>/bootstrap.min.js"></script>
+<script type="text/javascript" src="<?php echo JS_PATH;?>/summernote/summernote.min.js"></script>
+<script type="text/javascript" src="<?php echo JS_PATH;?>/summernote/summernote-zh-CN.js"></script>
+<link rel="stylesheet" href="<?php echo JS_PATH ?>/jNotify/jNotify.jquery.css" />
+<script src="<?php echo JS_PATH ?>/jNotify/jNotify.jquery.js"></script>
+<script>
+    var validate = {title:false,category:false,content:false};
+    $(document).ready(function() {
+        $("#subBtn").on("click",function(){
+            if($("#title").val() == ""){
+                showMsg("文章标题不能为空");
+                validate.title = false;
+                return false;
+            }else{
+                validate.title = true;
+            }
+            if($("#category").val() == ""){
+                showMsg("请选择分类");
+                validate.category = false;
+                return false;
+            }else{
+                validate.category = true;
+            }
+            if($('#summernote').code() == "" || $('#summernote').code() == "正文"){
+                showMsg("文章正文不能为空");
+                validate.content = false;
+                return false;
+            }else{
+                validate.content = true;
+            }
+            var isOk = validate.title && validate.category && validate.content;
+            if(isOk){
+                var thisFunc = arguments.callee;
+                var  self = $(this);
+                self.off("click",thisFunc);//一次请求解绑事件监听函数
+                var title = $("#title").val();
+                var category = $("#category").val();
+                var content = $('#summernote').code();
+                $.ajax({
+                    type:"POST",
+                    url:"/discuss/handleEditArticle",
+                    data:{"id":"<?php echo $article['id'];?>","title":title,"category":category,"content":content},
+                    dataType:"json",
+                    success:function(data){
+                        self.on('click',thisFunc); //请求完成再次绑定事件监听函数
+                        if(data.status){
+                            showMsg("编辑文章成功",1);
+                            setTimeout(function(){
+                                window.location.href=data.url;
+                            },1500)
+                        }else{
+                            showMsg("编辑文章失败");
+                        }
+                    }
+                })
+            }
+        });
+
+        $('#summernote').summernote({
+            toolbar: [
+                ['color', ['color']],
+                ['style', ['bold', 'italic', 'underline']],
+                ['fontsize', ['fontsize']],
+                ['insert', ['picture','link']],
+            ],
+            height:200,
+            lang:'zh-CN',
+            onImageUpload: function(files, editor, welEditable) {
+                sendFile(files[0], editor, welEditable);
+            }
+        });
+        var sHTML = $('#summernote').code();
+    });
+    function sendFile(file, editor, welEditable) {
+        data = new FormData();
+        data.append("file", file);
+        $.ajax({
+            data: data,
+            type: "POST",
+            url: "/public/handleUploadImg",
+            cache: false,
+            contentType: false,
+            processData: false,
+            success: function(response) {
+                var response = eval("("+response+")");
+                if(response.status){
+                    editor.insertImage(welEditable, response.path);
+                }else{
+                    alert(response.msg);
+                }
+
+            }
+        });
+    }
+    function showMsg(msg, type) {
+        if (type) {
+            jSuccess(msg,{
+                VerticalPosition : 'center',
+                HorizontalPosition : 'center'
+            });
+        } else {
+            jError(msg,{
+                VerticalPosition : 'center',
+                HorizontalPosition : 'center'
+            });
+        }
+    }
+</script>
+</body>
+</html>

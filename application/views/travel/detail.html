@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <?php include HEADER_HTML ?>
+</head>
+<style>
+    textarea {
+        padding: 0 5px 0 5px;
+        vertical-align: middle;
+        width: 100%;
+        resize: none;
+    }
+    textarea:focus {
+        outline-style: solid;
+        outline-width: 2px;
+    }
+</style>
+<body>
+<?php include TOP_HTML ?>
+<div id="main">
+    <div class="container" style="margin-top: 22px;">
+        <h3 style="font-size: 16px;color:#063642;font-weight: 500;"><?php echo $article["travel_name"];?></h3>
+        <p style="font-size: 13px;color:#a1a1a1;padding: 18px 0;font-family:'microsoft yahei', '黑体';"><a href="/user?id=<?php echo $article['uid']?>" style="color: #f05050;"><?php echo $article["username"]?></a>&nbsp;&nbsp;发布于：<?php echo time_format($article["add_time"]);?>&nbsp;&nbsp;被围观：<?php echo $article["click_number"]?></p>
+        <div class="summary">
+            <?php echo $article["content"];?>
+        </div>
+        <div class="zanBox" style="margin-top: 12px;text-align:center;">
+        <a href="javascript:void(0)" class="like-button" style="color: #f05050" data-id="<?php echo $article['id'];?>" data-diff="2"><i class="fa fa-thumbs-o-up"></i>&nbsp;点赞</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="javascript:void(0)" class="favorite-button" data-id="<?php echo $article['id'];?>" data-diff="2" style="color: #f05050"><i class="fa fa-bookmark-o"></i>&nbsp;收藏</a>
+        </div>
+        <div class="linkBox" style="margin:20px 0;text-align:center;">
+            <a href="<?php if($linkNav['last']){echo '/travel/detail?id='.$linkNav['last']['id'];}else{echo 'javascript:;';}?>" title="上一篇：<?php echo $linkNav['last']['travel_name'];?>"><?php if($linkNav['last']){echo "上一篇";}else{echo "没有了";}?></a>
+            <a href="/travel?sid=<?php echo $article['sort_id'];?>" title="返回当前栏目">返回当前栏目</a>
+            <a href="<?php if($linkNav['next']){echo '/travel/detail?id='.$linkNav['next']['id'];}else{echo 'javascript:;';}?>" title="下一篇：<?php echo $linkNav['next']['travel_name'];?>"><?php if($linkNav['next']){echo "下一篇";}else{echo "没有了";}?></a>
+        </div>
+        <div class="commentBox">
+            <h5 style="height:40px;line-height:40px;font-size:16px;margin-bottom: 10px;border-bottom:1px solid #eee;">评论(<span style="color:#F52648;"><?php echo $commentTotal?></span>)</h5>
+            <div class="comment-form">
+                <div class="comment-area">
+                    <div class="comment-body" style="margin-bottom: 15px;">
+                        <?php foreach($commentList as $k=>$v){?>
+                        <div class="comment-entry" style="padding: 10px 0;border-bottom: 1px solid #eee;">
+                            <div class="comment-entry-top"><a href="javascript:void(0)" style="color: #2d64b6;font-size: 14px;"><?php echo $v["username"];?></a>&nbsp;&nbsp;<span style="color: #999;font-size: 13px;"><?php echo time_format($v["ctime"]);?></span></div>
+                            <div class="comment-entry-con" style="font-size: 14px;padding: 8px 0;"><?php echo $v["content"];?><a class="reply-comment-btn" style="margin-left: 5px;float: right;color: #f05050;" href="javascript:void(0)" onclick="showReply(this)">回复</a></div>
+                            <div class="reply-action-area" style="background: #F8F8F8;overflow: hidden;padding: 1%;margin-bottom: 15px;display: none;">
+                                <div class="reply-action-editor pull-left" style="width:80%;"><textarea id="reply_textarea" style="border:1px solid #eee;color: rgb(51, 51, 51);">回复 <?php echo $v["username"];?>：</textarea></div>
+                                <div class="reply-action-sub pull-right"  style="width:18%;"><a class="btn btn-info" id="replySubtn" href="javascript:void(0);" style="padding:10px 14px;"  data-uname="<?php echo $v['username'];?>" data-commentid="<?php echo $v['id'];?>" data-uid="<?php echo $v['from_id'];?>" onclick="replyComment(this)"> 回复</a></div>
+                            </div>
+                        </div>
+                        <?php }?>
+                        <?php if(empty($commentList)){?>
+                        <div class="comment-entry" style="padding: 10px 0;text-align: center;">
+                            暂无相关评论
+                        </div>
+                        <?php }?>
+                        <?php if(!$_SESSION['uid']) { ?>
+                        <div class="comment-entry" style="padding: 10px 0 0 0;text-align: center; font-size: 14px;font-family: "Microsoft yahei","Century Gothic";">
+                        您需要登录后才可以评论 <a href="" style="color:#f05050;">登录</a> | <a href=""  style="color:#f05050;">立即注册</a>
+                    </div>
+                    <?php }?>
+                </div>
+                <?php if($_SESSION['uid']) { ?>
+                <div class="comment-action-area" style="background: #F8F8F8;overflow: hidden;padding: 2%;margin-bottom: 15px;">
+                    <div class="comment-action-editor pull-left" style="width:80%;"><textarea id="textarea" style="border:1px solid #eee;color: rgb(51, 51, 51);" placeholder="撰写评论..."></textarea></div>
+                    <div class="comment-action-sub pull-right"  style="width:18%;"><a class="btn btn-info" id="commentSubtn" href="javascript:void(0);" style="padding:10px 14px;"> 提交</a></div>
+                </div>
+                <?php }?>
+            </div>
+        </div>
+
+    </div>
+</div>
+</div>
+<?php include FOOTER_HTML ?>
+<script src="<?php echo JS_PATH;?>/autosize.min.js"></script>
+<script src="<?php echo JS_PATH ?>/jNotify/jNotify.jquery.js"></script>
+<link rel="stylesheet" href="<?php echo JS_PATH ?>/jNotify/jNotify.jquery.css" />
+<script>
+    $(function () {
+        $(".like-button").on("click",function(){
+            var thisFunc = arguments.callee;
+            var  self = $(this);
+            self.off("click",thisFunc);//一次请求解绑事件监听函数
+            var artile_id = $(this).attr("data-id");
+            var diff = $(this).attr("data-diff");
+            var element_span = $(this).find("span");
+            var element_span_val = parseInt($(this).find("span").text());
+            $.ajax({
+                type:"POST",
+                url:"/public/handleZan/",
+                data:{"artileId":artile_id,"different":diff},
+                dataType:"json",
+                success:function(data){
+                    if(data.status){
+                        element_span.text(element_span_val+1);
+                        jSuccess(data.msg,{
+                            VerticalPosition : 'center',
+                            HorizontalPosition : 'center'
+                        });
+                    }else{
+                        jError(data.msg,{
+                            VerticalPosition : 'center',
+                            HorizontalPosition : 'center'
+                        });
+                    }
+                    self.on('click',thisFunc); //请求完成再次绑定事件监听函数
+                }
+            })
+        });
+        $(".favorite-button").on("click",function(){
+            var thisFunc = arguments.callee;
+            var  self = $(this);
+            self.off("click",thisFunc);//一次请求解绑事件监听函数
+            var artile_id = $(this).attr("data-id");
+            var diff = $(this).attr("data-diff");
+            var element_span = $(this).find("span");
+            var element_span_val = parseInt($(this).find("span").text());
+            $.ajax({
+                type:"POST",
+                url:"/public/handleCollect/",
+                data:{"artileId":artile_id,"different":diff},
+                dataType:"json",
+                success:function(data){
+                    if(data.status){
+                        element_span.text(element_span_val+1);
+                        jSuccess(data.msg,{
+                            VerticalPosition : 'center',
+                            HorizontalPosition : 'center'
+                        });
+                    }else{
+                        jError(data.msg,{
+                            VerticalPosition : 'center',
+                            HorizontalPosition : 'center'
+                        });
+                    }
+                    self.on('click',thisFunc); //请求完成再次绑定事件监听函数
+                }
+            })
+        });
+        autosize($('textarea'));
+        //评论
+        $("#commentSubtn").on("click",function(){
+            var thisFunc = arguments.callee;
+            var  self = $(this);
+            self.off("click",thisFunc);//一次请求解绑事件监听函数
+            var commentCon = $("#textarea").val();
+            $.ajax({
+                type:"POST",
+                url:"/public/handleComment/",
+                data:{"artileId":"<?php echo $article["id"];?>","content":commentCon,"toUid":"<?php echo $article['uid']?>","type":2},
+                dataType:"json",
+                beforeSend:function(XMLHttpRequest){
+                    if(commentCon == ""){
+                        return false;
+                    }
+                },
+                success:function(data){
+                    self.bind('click',thisFunc); //请求完成再次绑定事件监听函数
+                    if(data.status){
+                        var str='<div class="comment-entry" style="padding: 10px 0;border-bottom: 1px solid #eee;"><div class="comment-entry-top"><a href="javascript:void(0)" style="color: #2d64b6;font-size: 14px;"><?php echo $current_user_info["username"];?></a>&nbsp;&nbsp;<span style="color: #999;font-size: 13px;">'+data.ctime+'</span></div><div class="comment-entry-con" style="font-size: 14px;padding: 8px 0;">'+data.content+'<a class="reply-comment-btn" style="margin-left: 5px;float: right;color: #f05050;" href="javascript:void(0)"  onclick="showReply(this)">回复</a></div><div class="reply-action-area" style="display:none;background: #F8F8F8;overflow: hidden;padding: 1%;margin-bottom: 15px;"><div class="reply-action-editor pull-left" style="width:80%;"><textarea id="reply_textarea" style="border:1px solid #eee;color: rgb(51, 51, 51);">回复 <?php echo $current_user_info["username"];?>：</textarea></div><div class="reply-action-sub pull-right"  style="width:18%;"><a class="btn btn-info" id="replySubtn" href="javascript:void(0);" style="padding:10px 14px;"  data-uname="<?php echo $current_user_info["username"];?>" data-commentid="'+data.comment_id+'" data-uid="<?php echo $current_user_info["id"];?>" onclick="replyComment(this)"> 回复</a></div></div></div>';
+                        $(".comment-body").prepend(str);
+                        $("#textarea").val("");
+                        var total_comment = parseInt($("#totalComment").text());
+                        $("#totalComment").text(total_comment+1);
+                        jSuccess(data.msg,{
+                            VerticalPosition : 'center',
+                            HorizontalPosition : 'center'
+                        });
+                    }else{
+                        jError(data.msg,{
+                            VerticalPosition : 'center',
+                            HorizontalPosition : 'center'
+                        });
+                    }
+                }
+            })
+        });
+    });
+    var click=0;
+    //回复某人
+    function replyComment(obj){
+        click = click +1;
+        if(click > 1){
+            return false;
+        }
+        var reply_btn = $(obj);
+        var to_id = reply_btn.attr("data-uid");//回复谁
+        var to_uname = reply_btn.attr("data-uname");//回复谁
+        var comment_id = reply_btn.attr("data-commentid");//回复的评论的ID
+        var commentCon = reply_btn.parent().parent().find("#reply_textarea").val();
+        $.ajax({
+            type:"POST",
+            url:"/public/handleReply/",
+            data:{"artileId":"<?php echo $article["id"];?>","content":commentCon,"toUid":to_id,"commentId":comment_id,"type":2},
+            dataType:"json",
+            beforeSend:function(XMLHttpRequest){
+                if(commentCon == ""){
+                    return false;
+                }
+            },
+            success:function(data){
+                click = 0; //请求完成再次绑定事件监听函数
+                if(data.status){
+                    var str='<div class="comment-entry" style="padding: 10px 0;border-bottom: 1px solid #eee;"><div class="comment-entry-top"><a href="javascript:void(0)" style="color: #2d64b6;font-size: 14px;"><?php echo $current_user_info["username"];?></a>&nbsp;&nbsp;<span style="color: #999;font-size: 13px;">'+data.ctime+'</span></div><div class="comment-entry-con" style="font-size: 14px;padding: 8px 0;">'+data.content+'<a class="reply-comment-btn" style="margin-left: 5px;float: right;color: #f05050;" href="javascript:void(0)"  onclick="showReply(this)">回复</a></div><div class="reply-action-area" style="display:none;background: #F8F8F8;overflow: hidden;padding: 1%;margin-bottom: 15px;"><div class="reply-action-editor pull-left" style="width:80%;"><textarea id="reply_textarea" style="border:1px solid #eee;color: rgb(51, 51, 51);">回复 <?php echo $current_user_info["username"];?>：</textarea></div><div class="reply-action-sub pull-right"  style="width:18%;"><a class="btn btn-info" id="replySubtn" href="javascript:void(0);" style="padding:10px 14px;"  data-uname="<?php echo $current_user_info["username"];?>" data-commentid="'+data.comment_id+'" data-uid="<?php echo $current_user_info["id"];?>" onclick="replyComment(this)"> 回复</a></div></div></div>';
+                    $(".comment-body").prepend(str);
+                    reply_btn.parent().parent().find("#reply_textarea").val("回复 "+to_uname+"：")
+                    $(".reply-action-area").hide();
+                    var total_comment = parseInt($("#totalComment").text());
+                    $("#totalComment").text(total_comment+1);
+                    jSuccess(data.msg,{
+                        VerticalPosition : 'center',
+                        HorizontalPosition : 'center'
+                    });
+                }else{
+                    jError(data.msg,{
+                        VerticalPosition : 'center',
+                        HorizontalPosition : 'center'
+                    });
+                }
+            }
+        })
+    }
+    var count_num=1;
+    //显示回复框
+    function showReply(obj){
+        count_num=count_num+1;
+        var comment = $(obj).parent().next(".reply-action-area");
+        if(count_num%2==0){
+            $(".reply-action-area").hide();
+            comment.show();
+        }else{
+            comment.hide();
+        }
+    }
+</script>
+</body>
+</html>

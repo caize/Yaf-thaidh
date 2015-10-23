@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <?php include HEADER_HTML ?>
+    <style>
+        .tab_title { width:100%; height:34px; margin-bottom:30px; }
+        .tab_title ul { width:100%; overflow:hidden;}
+        .tab_title ul li{ width:24%; float:left;margin-right:2px; }
+        .tab_title ul li a { width:100%;border:1px solid #eee; display:block;  padding:6px;color:#666;text-align:center; }
+        .tab_title ul li a:hover {color:#0098E6; }
+        .tab_title ul li a.current { color:#0098E6; }
+    </style>
+</head>
+<body>
+<?php include TOP_HTML ?>
+<div id="main">
+    <div class="container" id="daily" style="margin-top:30px;">
+        <h3 style="margin-bottom:30px;">个人信息</h3>
+        <div class="tab_title">
+            <ul>
+                <li><a href="/member">基本信息</a></li>
+                <li><a href="/member/avatar">修改头像</a></li>
+                <li><a href="/member/passwd">修改密码</a></li>
+                <li><a href="/member/point"  class="current">积分等级</a></li>
+            </ul>
+        </div>
+        <h5 style="margin-bottom: 15px;">当前等级<?php echo $level;?>、积分<?php echo $user_info["point"];?>，距下一级还需<?php echo $remain_point;?>分</h5>
+        <table class="table table-condensed">
+            <tr><th>等级</th><th>积分</th></tr>
+            <?php foreach($level_data as $k=>$v){ ?>
+                <tr <?php if($v["level"] == $level){echo 'style="background:#eee;color:#0098E6;"';}?>><td><?php echo $v["level"];?></td><td><?php echo $v["point"];?></td></tr>
+            <?php }?>
+        </table>
+        <table class="table table-condensed">
+            <tr><th>操作</th><th>获得积分值</th></tr>
+            <tr><td>每天登录</td><td>3</td></tr>
+            <tr><td>发布文章</td><td>8</td></tr>
+            <tr><td>评论</td><td>2</td></tr>
+            <tr><td>私信</td><td>1</td></tr>
+            <tr><td>收藏</td><td>1</td></tr>
+            <tr><td>点赞</td><td>1</td></tr>
+        </table>
+    </div>
+</div>
+<?php include FOOTER_HTML ?>
+</body>
+</html>

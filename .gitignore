@@ -1,0 +1,15 @@
+Runtime
+*.jpg
+*.png
+*.mp3
+*.log
+*.swp
+*.swo
+*.bak
+*.zip
+*.tar.gz
+*.gz
+/App/Commmon/Conf/config.php
+/App/Admin/Conf/config.php
+/App/Home/Conf/config.php
+cache

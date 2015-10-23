@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <?php include HEADER_HTML ?>
+</head>
+<body>
+<?php include TOP_HTML ?>
+<div id="main">
+    <div class="container" id="daily" style="padding-top: 25px;">
+        <form action="/search" method="get">
+            <div class="input-group">
+                <input type="text" name="word" id="q" value="<?php echo $word;?>" class="form-control" placeholder="搜索" />
+                <span class="input-group-btn">
+                <button type="submit" class="btn btn-default">
+                    <span class="fa fa-search"></span>
+                </button>
+                </span>
+            </div>
+        </form>
+        <div class="daily">
+            <div class="posts">
+                <?php foreach($list as $k=>$v){ ?>
+                <div class="post">
+                    <div class="btn-group-vertical upvote" style="display:none;">
+                        <a class="btn btn-default like-button" title="登录后点赞" href="/signin"><i class="fa fa-thumbs-o-up"></i> <span><?php echo $v['zan_num'];?></span></a>
+                        <a class="btn btn-default favorite-button" title="登录后收藏" href="/signin"><i class="fa fa-bookmark-o"></i> <span><?php echo $v['collect_num'];?></span></a>
+                    </div>
+                    <div class="content" data-url="" style="padding-left:0;">
+                        <h3 class="title">
+                            <a target="_blank" href="<?php echo $v['url'];?>"><?php echo $v['title'];?></a>
+                        </h3>
+                        <p class="summary"><a href="<?php echo $v['url'];?>" style="font-size: 13px;"><?php echo msubstr(strip_tags($v["intro"]),0,100);?></a></p>
+                        <div class="meta">by <?php echo $v['username'];?>&nbsp;
+      <span>
+          <i class="fa fa-comment-o"></i> <?php echo $v['comment_num'];?>
+      </span>
+      <span>
+           <i class="fa fa-eye"></i> <?php echo $v['click_number'];?>
+      </span>
+                        </div>
+                    </div>
+                    <div class="user-info">
+                        <div class="user-avatar">
+                            <img width="32" class="img-circle" src="<?php echo $v['avatar'];?>" alt="Thumb" />
+                        </div>
+                    </div>
+                </div>
+                <?php } ?>
+            </div>
+            <nav class="text-center"><ul class="pagination"><?php echo $pageNav;?></ul> </nav>
+        </div>
+    </div>
+</div>
+<?php include FOOTER_HTML ?>
+</body>
+</html>
