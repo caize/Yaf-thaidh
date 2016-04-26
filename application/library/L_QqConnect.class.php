@@ -1,8 +1,8 @@
 <?php
 //QQ登录类
 class L_QqConnect{
-    private $appid = "101226808";
-    private $appkey = "baaee5fa9b0fe4eba32045196c4abbb4";
+    private $appid = "";
+    private $appkey = "";
     private $callback_url = "http://thaidh.com/login/auth/?type=qq";
     private $scope = "get_user_info";
     /**

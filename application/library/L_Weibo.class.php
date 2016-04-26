@@ -1,8 +1,8 @@
 <?php
 //weibo登录类
 class L_Weibo{
-    private $appid = "853275644";
-    private $appkey = "39b7146baddea40b3e05a12f022cf402";
+    private $appid = "";
+    private $appkey = "";
     private $callback_url = "http://thaidh.com/login/auth/?type=weibo";
     private $scope = "";
 
